@@ -133,68 +133,6 @@ elif choice == "Compare Stocks":
 
         plot_comparison()
 
-# Import necessary libraries
-import nltk
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
-from datetime import date
-import yfinance as yf
-from prophet import Prophet
-from prophet.plot import plot_plotly
-import plotly.graph_objs as go
-import pandas as pd
-from sklearn.ensemble import IsolationForest
-
-# Load economic indicators
-def load_macro_data():
-    # Implement function to load macroeconomic data
-    pass
-
-def load_data(ticker):
-    if ticker:
-        data = yf.download(ticker, start_date, TODAY)
-        data.reset_index(inplace=True)
-        return data
-
-# Detect anomalies
-def detect_anomalies(data):
-    isolation_forest = IsolationForest(contamination=0.01)
-    data['anomaly'] = isolation_forest.fit_predict(data[['Close']])
-    anomalies = data[data['anomaly'] == -1]
-    return anomalies
-
-# Integrate into Streamlit app
-def main():
-    st.title('Enhanced Stock Market Predictor')
-    selected_stock = st.text_input('Select a stock ticker for prediction')
-    start_year = st.slider('Select the start year for prediction', 2010, date.today().year - 1, 2020)
-    start_date = date(start_year, 1, 1).strftime("%Y-%m-%d")
-    n_years = st.slider('How many years into the future?', 1, 4)
-    period = n_years * 365
-
-    if selected_stock:
-        data_load_state = st.text('Loading data...')
-        data = load_data(selected_stock)
-        data_load_state.text('Loading data... done!')
-        
-        # Anomaly detection
-        anomalies = detect_anomalies(data)
-        
-        st.write("Detected Anomalies:", anomalies)
-
-        # Forecast with Prophet
-        data['ds'] = data['Date']
-        data['y'] = data['Close']
-        m = Prophet()
-        m.fit(data)
-        future = m.make_future_dataframe(periods=period)
-        forecast = m.predict(future)
-        st.write("Forecast plot:", plot_plotly(m, forecast))
-
-if __name__ == '__main__':
-    main()
-
-
 footer = """
 <style>
 .footer {
