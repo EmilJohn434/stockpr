@@ -1,0 +1,10 @@
+yfinance==0.2.26
+streamlit
+datetime
+prophet
+plotly
+scikit-learn
+tensorflow==2.13.0
+transformers
+textblob
+nltk
