@@ -150,4 +150,4 @@ footer = """
     <p>Analyze stocks before investing.</p>
 </div>
 """
-st.markdown(footer
+st.markdown(footer)
