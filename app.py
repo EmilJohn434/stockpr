@@ -210,3 +210,24 @@ footer = """
 </div>
 """
 st.markdown(footer, unsafe_allow_html=True)
+
+import yfinance as yf
+import requests
+
+def get_news(stock):
+    try:
+        company_name = yf.Ticker(stock).info['longName']
+        search_query = f'{stock} OR {company_name}'
+        url = f'https://newsapi.org/v2/everything?q={search_query}&apiKey={NEWS_API_KEY}&pageSize=5'
+        response = requests.get(url)
+        response.raise_for_status()  # This will raise an HTTPError if the request returned an unsuccessful status code
+        news_data = response.json()
+        return news_data
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+        st.error("Failed to fetch stock information. Please check the ticker symbol and try again.")
+        return None
+    except Exception as err:
+        print(f"Other error occurred: {err}")
+        st.error("An unexpected error occurred. Please try again later.")
+        return None
