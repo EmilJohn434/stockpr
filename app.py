@@ -147,5 +147,5 @@ text-align: center;
 <div class="footer">
 <p>This app is made for educational purposes only. Data it provides is not 100% accurate.</p> 
 <p>Made by Emil, Adhip and Naren</p> 
-</div> """ st.markdown(footer, unsafe_allow_html=True
+</div> """ st.markdown(footer, unsafe_allow_html=True)
 
