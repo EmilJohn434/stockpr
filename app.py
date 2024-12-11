@@ -55,7 +55,10 @@ if choice == "Predict Single Stock":
                 xaxis_rangeslider_visible=True,
                 height=600,
                 width=900,
-                yaxis=dict(tickvals=[0, 100, 200, 300, 400])
+                yaxis=dict(
+                    tickvals=[0, 100, 200, 300, 400],
+                    range=[0, 500],  # Adjust this range as needed
+                )
             )
             st.plotly_chart(fig)
 
@@ -94,7 +97,10 @@ if choice == "Predict Single Stock":
             xaxis_rangeslider_visible=True,
             height=600,
             width=900,
-            yaxis=dict(tickvals=[0, 100, 200, 300, 400]),
+            yaxis=dict(
+                tickvals=[0, 100, 200, 300, 400],
+                range=[0, 500],  # Adjust this range as needed
+            ),
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -130,7 +136,10 @@ elif choice == "Compare Stocks":
                 xaxis_rangeslider_visible=True,
                 height=600,
                 width=900,
-                yaxis=dict(tickvals=[0, 100, 200, 300, 400])
+                yaxis=dict(
+                    tickvals=[0, 100, 200, 300, 400],
+                    range=[0, 500],  # Adjust this range as needed
+                )
             )
             st.plotly_chart(fig)
 
