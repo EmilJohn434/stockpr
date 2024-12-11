@@ -54,7 +54,8 @@ if choice == "Predict Single Stock":
                 title_text='Stock History',
                 xaxis_rangeslider_visible=True,
                 height=600,
-                width=900
+                width=900,
+                yaxis=dict(tickvals=[0, 100, 200, 300, 400])
             )
             st.plotly_chart(fig)
 
@@ -93,6 +94,7 @@ if choice == "Predict Single Stock":
             xaxis_rangeslider_visible=True,
             height=600,
             width=900,
+            yaxis=dict(tickvals=[0, 100, 200, 300, 400]),
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -127,7 +129,8 @@ elif choice == "Compare Stocks":
                 title_text='Stock Comparison',
                 xaxis_rangeslider_visible=True,
                 height=600,
-                width=900
+                width=900,
+                yaxis=dict(tickvals=[0, 100, 200, 300, 400])
             )
             st.plotly_chart(fig)
 
@@ -151,4 +154,3 @@ footer = """
 </div>
 """
 st.markdown(footer, unsafe_allow_html=True)
-
