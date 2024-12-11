@@ -134,20 +134,7 @@ elif choice == "Compare Stocks":
         plot_comparison()
 
 footer = """
-<style>
-.footer {
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    background-color: white;
-    color: black;
-    text-align: center;
-}
-</style>
-<div class="footer">
     <p>Coded by Pranav, Emil, and Mantra</p>
     <p>This app is made for educational purposes only. Data it provides is not 100% accurate.</p>
     <p>Analyze stocks before investing.</p>
-</div>
-"""
 st.markdown(footer)
