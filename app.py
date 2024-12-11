@@ -150,4 +150,5 @@ footer = """
     <p>Analyze stocks before investing.</p>
 </div>
 """
+st.markdown(footer, unsafe_allow_html=True
 
