@@ -217,3 +217,4 @@ elif choice == "Predict Gold Prices":
         height=600,
         width=900,
         yaxis=dict
+    )
