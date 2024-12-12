@@ -152,6 +152,50 @@ elif choice == "Compare Stocks":
 
         plot_comparison()
 
+import nltk
+
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+import streamlit as st
+from datetime import date
+import requests
+from prophet import Prophet
+from prophet.plot import plot_plotly
+import plotly.graph_objs as go
+import pandas as pd
+
+# Function to get the current gold price in INR per 10 grams
+def get_gold_price_inr():
+    # Example API endpoint for current gold price in India
+    # Replace 'API_URL' with the actual API endpoint providing the gold price data
+    response = requests.get('API_URL')
+    data = response.json()
+    return data['gold_price_inr_per_10g']
+
+TODAY = date.today().strftime("%Y-%m-%d")
+start_date = None
+
+def load_data():
+    # Placeholder function since we're using the gold price API
+    data = pd.DataFrame()
+    data['Date'] = pd.date_range(start=start_date, end=TODAY, freq='D')
+    data['Close'] = [get_gold_price_inr() for _ in range(len(data))]
+    data.reset_index(inplace=True)
+    return data
+
+st.title('Market Predictor')
+
+menu = ["Predict Single Stock", "Compare Stocks", "Predict Gold Prices"]
+choice = st.sidebar.selectbox("Select page", menu)
+
+if choice == "Predict Single Stock":
+    # Existing code for single stock prediction (unchanged)
+    pass
+
+elif choice == "Compare Stocks":
+    # Existing code for comparing stocks (unchanged)
+    pass
+
 elif choice == "Predict Gold Prices":
     start_year = st.slider('Select the start year for prediction', 2010, date.today().year - 1, 2020)
     start_date = date(start_year, 1, 1).strftime("%Y-%m-%d")
@@ -159,13 +203,8 @@ elif choice == "Predict Gold Prices":
     period = n_years * 365
 
     data_load_state = st.text('Loading gold price data...')
-    data = load_data('GC=F')  # 'GC=F' is the ticker for Gold Futures
+    data = load_data()
     data_load_state.text('Loading data... done!')
-
-    usd_to_inr = get_usd_to_inr_rate()
-    
-    # Convert prices from USD to INR for 10 grams
-    data['Close_INR'] = data['Close'] * usd_to_inr * 10
 
     smoothing_factor = st.slider('Smoothing Factor (increase for smoother graph)', 0.1, 0.95, 0.9, 0.05)
     changepoint_prior_scale = st.slider('Flexibility of Trend', 0.1, 10.0, 0.5, 0.1, format="%.1f")
@@ -174,13 +213,12 @@ elif choice == "Predict Gold Prices":
     data['Date'] = pd.to_datetime(data['Date'])
     data.set_index('Date', inplace=True)
     daily_data = data.resample('D').interpolate()
-    daily_data['Close_rolling_INR'] = daily_data['Close_INR'].ewm(alpha=1 - smoothing_factor).mean()
+    daily_data['Close_rolling'] = daily_data['Close'].ewm(alpha=1 - smoothing_factor).mean()
 
     def plot_gold_data():
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=daily_data.index, y=daily_data['Open'] * usd_to_inr * 10, name="Gold Open (INR)"))
-        fig.add_trace(go.Scatter(x=daily_data.index, y=daily_data['Close_INR'], name="Gold Close (INR)"))
-        fig.add_trace(go.Scatter(x=daily_data.index, y=daily_data['Close_rolling_INR'], name="Close (Exponential Smoothing) (INR)"))
+        fig.add_trace(go.Scatter(x=daily_data.index, y=daily_data['Close'], name="Gold Close (INR)"))
+        fig.add_trace(go.Scatter(x=daily_data.index, y=daily_data['Close_rolling'], name="Close (Exponential Smoothing) (INR)"))
         fig.update_layout(
             title_text='Gold Price History',
             xaxis_rangeslider_visible=True,
@@ -197,7 +235,7 @@ elif choice == "Predict Gold Prices":
 
     plot_gold_data()
 
-    df_train = daily_data[['Close_rolling_INR']].reset_index().rename(columns={"Date": "ds", "Close_rolling_INR": "y"})
+    df_train = daily_data[['Close_rolling']].reset_index().rename(columns={"Date": "ds", "Close_rolling": "y"})
 
     m = Prophet(
         growth='linear',
@@ -246,6 +284,26 @@ elif choice == "Predict Gold Prices":
     )
 
     st.plotly_chart(fig2)
+
+footer = """
+<style>
+.footer {
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: white;
+    color: black;
+    text-align: center;
+}
+</style>
+<div class="footer">
+    <p>Made by Emil, Adhip and Naren</p>
+    <p>This app is made for educational purposes only. Data it provides is not 100% accurate.</p>
+    <p>Analyze stocks before investing.</p>
+</div>
+"""
+st.markdown(footer, unsafe_allow_html=True)
+
 
 footer = """
 <style>
