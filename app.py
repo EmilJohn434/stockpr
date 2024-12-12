@@ -9,13 +9,6 @@ from prophet import Prophet
 from prophet.plot import plot_plotly
 import plotly.graph_objs as go
 import pandas as pd
-import requests
-
-# Function to get the current exchange rate from USD to INR
-def get_usd_to_inr_rate():
-    response = requests.get('https://api.exchangerate-api.com/v4/latest/USD')
-    data = response.json()
-    return data['rates']['INR']
 
 TODAY = date.today().strftime("%Y-%m-%d")
 start_date = None
@@ -26,9 +19,9 @@ def load_data(ticker):
         data.reset_index(inplace=True)
         return data
 
-st.title('Market Predictor')
+st.title('Stock Market Predictor')
 
-menu = ["Predict Single Stock", "Compare Stocks", "Predict Gold Prices"]
+menu = ["Predict Single Stock", "Compare Stocks"]
 choice = st.sidebar.selectbox("Select page", menu)
 
 if choice == "Predict Single Stock":
@@ -151,53 +144,6 @@ elif choice == "Compare Stocks":
             st.plotly_chart(fig)
 
         plot_comparison()
-
-import nltk
-
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
-import streamlit as st
-from datetime import date
-import requests
-from prophet import Prophet
-from prophet.plot import plot_plotly
-import plotly.graph_objs as go
-import pandas as pd
-
-# Function to get the current gold price in INR per 10 grams
-def get_gold_price_inr():
-    # Example API endpoint for current gold price in India
-    # Replace 'API_URL' with the actual API endpoint providing the gold price data
-    response = requests.get('API_URL')
-    data = response.json()
-    return data['gold_price_inr_per_10g']
-
-TODAY = date.today().strftime("%Y-%m-%d")
-start_date = None
-
-def load_data():
-    # Placeholder function since we're using the gold price API
-    data = pd.DataFrame()
-    data['Date'] = pd.date_range(start=start_date, end=TODAY, freq='D')
-    data['Close'] = [get_gold_price_inr() for _ in range(len(data))]
-    data.reset_index(inplace=True)
-    return data
-
-st.title('Market Predictor')
-
-menu = ["Predict Single Stock", "Compare Stocks", "Predict Gold Prices"]
-choice = st.sidebar.selectbox("Select page", menu)
-
-if choice == "Predict Single Stock":
-    # Existing code for single stock prediction (unchanged)
-    pass
-
-elif choice == "Compare Stocks":
-    # Existing code for comparing stocks (unchanged)
-    pass
-
-
-
 
 footer = """
 <style>
