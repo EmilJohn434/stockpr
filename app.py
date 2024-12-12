@@ -176,11 +176,76 @@ elif choice == "Predict Gold Prices":
             width=900,
             yaxis=dict(
                 tickvals=[0, 1000, 2000, 3000, 4000],
-                range=[0, 5000],  # Ensure this range is valid for your data
+                range=[0, 5000],  # Adjust this range as needed
             )
         )
         st.plotly_chart(fig)
 
     plot_gold_data()
 
-    df_train = daily_data[['Close_rolling']].reset_index().rename(columns={"Date": "ds", "Close_rolling
+    df_train = daily_data[['Close_rolling']].reset_index().rename(columns={"Date": "ds", "Close_rolling": "y"})
+
+    m = Prophet(
+        growth='linear',
+        changepoint_prior_scale=changepoint_prior_scale
+    )
+
+    m.fit(df_train)
+
+    future = m.make_future_dataframe(periods=period, freq='D')
+
+    forecast = m.predict(future)
+
+    if n_years == 1:
+        st.subheader(f'Forecast Plot for {n_years} Year')
+    else:
+        st.subheader(f'Forecast Plot for {n_years} Years')
+
+    fig2 = plot_plotly(m, forecast)
+
+    fig2.update_traces(mode='lines', line=dict(color='blue', width=2), selector=dict(name='yhat'))
+
+    num_data_points = len(forecast)
+    marker_size = max(4, 200 // num_data_points)
+
+    fig2.update_traces(mode='markers+lines', marker=dict(size=marker_size, color='black', opacity=0.7),
+                       selector=dict(name='yhat_lower,yhat_upper'))
+
+    fig2.update_layout(
+        title_text=f'Forecast Plot for {n_years} Years',
+        xaxis_rangeslider_visible=True,
+        height=600,
+        width=900,
+        yaxis=dict(
+            tickvals=[0, 1000, 2000, 3000, 4000],
+            range=[0, 5000],  # Ensure this range is valid for your data
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        )
+    )
+
+    st.plotly_chart(fig2)
+
+footer = """
+<style>
+.footer {
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: white;
+    color: black;
+    text-align: center;
+}
+</style>
+<div class="footer">
+    <p>Made by Emil, Adhip and Naren</p>
+    <p>This app is made for educational purposes only. Data it provides is not 100% accurate.</p>
+    <p>Analyze stocks before investing.</p>
+</div>
+"""
+st.markdown(footer, unsafe_allow_html=True)
