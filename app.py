@@ -9,6 +9,13 @@ from prophet import Prophet
 from prophet.plot import plot_plotly
 import plotly.graph_objs as go
 import pandas as pd
+import requests
+
+# Function to get the current exchange rate from USD to INR
+def get_usd_to_inr_rate():
+    response = requests.get('https://api.exchangerate-api.com/v4/latest/USD')
+    data = response.json()
+    return data['rates']['INR']
 
 TODAY = date.today().strftime("%Y-%m-%d")
 start_date = None
@@ -155,6 +162,11 @@ elif choice == "Predict Gold Prices":
     data = load_data('GC=F')  # 'GC=F' is the ticker for Gold Futures
     data_load_state.text('Loading data... done!')
 
+    usd_to_inr = get_usd_to_inr_rate()
+    
+    # Convert prices from USD to INR for 10 grams
+    data['Close_INR'] = data['Close'] * usd_to_inr * 10
+
     smoothing_factor = st.slider('Smoothing Factor (increase for smoother graph)', 0.1, 0.95, 0.9, 0.05)
     changepoint_prior_scale = st.slider('Flexibility of Trend', 0.1, 10.0, 0.5, 0.1, format="%.1f")
 
@@ -162,13 +174,13 @@ elif choice == "Predict Gold Prices":
     data['Date'] = pd.to_datetime(data['Date'])
     data.set_index('Date', inplace=True)
     daily_data = data.resample('D').interpolate()
-    daily_data['Close_rolling'] = daily_data['Close'].ewm(alpha=1 - smoothing_factor).mean()
+    daily_data['Close_rolling_INR'] = daily_data['Close_INR'].ewm(alpha=1 - smoothing_factor).mean()
 
     def plot_gold_data():
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=daily_data.index, y=daily_data['Open'], name="Gold Open"))
-        fig.add_trace(go.Scatter(x=daily_data.index, y=daily_data['Close'], name="Gold Close"))
-        fig.add_trace(go.Scatter(x=daily_data.index, y=daily_data['Close_rolling'], name="Close (Exponential Smoothing)"))
+        fig.add_trace(go.Scatter(x=daily_data.index, y=daily_data['Open'] * usd_to_inr * 10, name="Gold Open (INR)"))
+        fig.add_trace(go.Scatter(x=daily_data.index, y=daily_data['Close_INR'], name="Gold Close (INR)"))
+        fig.add_trace(go.Scatter(x=daily_data.index, y=daily_data['Close_rolling_INR'], name="Close (Exponential Smoothing) (INR)"))
         fig.update_layout(
             title_text='Gold Price History',
             xaxis_rangeslider_visible=True,
@@ -185,7 +197,7 @@ elif choice == "Predict Gold Prices":
 
     plot_gold_data()
 
-    df_train = daily_data[['Close_rolling']].reset_index().rename(columns={"Date": "ds", "Close_rolling": "y"})
+    df_train = daily_data[['Close_rolling_INR']].reset_index().rename(columns={"Date": "ds", "Close_rolling_INR": "y"})
 
     m = Prophet(
         growth='linear',
