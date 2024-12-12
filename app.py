@@ -211,10 +211,10 @@ elif choice == "Predict Gold Prices":
     fig2.update_traces(mode='markers+lines', marker=dict(size=marker_size, color='black', opacity=0.7),
                        selector=dict(name='yhat_lower,yhat_upper'))
 
-    fig2.update_layout(
+    fig2.update_layout()
         title_text=f'Forecast Plot for {n_years} Years',
         xaxis_rangeslider_visible=True,
         height=600,
         width=900,
         yaxis=dict
-    )
+    
