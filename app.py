@@ -175,8 +175,10 @@ elif choice == "Predict Gold Prices":
             height=600,
             width=900,
             yaxis=dict(
-                tickvals=[0, 1000, 2000, 3000, 4000],
-                range=[0, 5000],  # Adjust this range as needed
+                tickvals=[2000, 4000, 6000, 8000, 10000],
+                range=[0, 11000],  # Ensure this range is valid for your data
+                title_text='Price in INR (10g)',
+                title_font=dict(size=18, color='blue')
             )
         )
         st.plotly_chart(fig)
@@ -217,8 +219,10 @@ elif choice == "Predict Gold Prices":
         height=600,
         width=900,
         yaxis=dict(
-            tickvals=[0, 1000, 2000, 3000, 4000],
-            range=[0, 5000],  # Ensure this range is valid for your data
+            tickvals=[2000, 4000, 6000, 8000, 10000],
+            range=[0, 11000],  # Ensure this range is valid for your data
+            title_text='Price in INR (10g)',
+            title_font=dict(size=18, color='blue')
         ),
         legend=dict(
             orientation="h",
