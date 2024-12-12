@@ -176,45 +176,11 @@ elif choice == "Predict Gold Prices":
             width=900,
             yaxis=dict(
                 tickvals=[0, 1000, 2000, 3000, 4000],
-                range=[0, 5000],  # Adjust this range as needed
+                range=[0, 5000],  # Ensure this range is valid for your data
             )
         )
         st.plotly_chart(fig)
 
     plot_gold_data()
 
-    df_train = daily_data[['Close_rolling']].reset_index().rename(columns={"Date": "ds", "Close_rolling": "y"})
-
-    m = Prophet(
-        growth='linear',
-        changepoint_prior_scale=changepoint_prior_scale
-    )
-
-    m.fit(df_train)
-
-    future = m.make_future_dataframe(periods=period, freq='D')
-
-    forecast = m.predict(future)
-
-    if n_years == 1:
-        st.subheader(f'Forecast Plot for {n_years} Year')
-    else:
-        st.subheader(f'Forecast Plot for {n_years} Years')
-
-    fig2 = plot_plotly(m, forecast)
-
-    fig2.update_traces(mode='lines', line=dict(color='blue', width=2), selector=dict(name='yhat'))
-
-    num_data_points = len(forecast)
-    marker_size = max(4, 200 // num_data_points)
-
-    fig2.update_traces(mode='markers+lines', marker=dict(size=marker_size, color='black', opacity=0.7),
-                       selector=dict(name='yhat_lower,yhat_upper'))
-
-    fig2.update_layout(
-        title_text=f'Forecast Plot for {n_years} Years',
-        xaxis_rangeslider_visible=True,
-        height=600,
-        width=900,
-        yaxis=dict
-)
+    df_train = daily_data[['Close_rolling']].reset_index().rename(columns={"Date": "ds", "Close_rolling
