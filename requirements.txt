@@ -8,3 +8,4 @@ tensorflow==2.17.1
 requests
 textblob
 nltk
+vaderSentiment
