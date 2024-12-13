@@ -20,7 +20,7 @@ st.title('Market Predictor')
 menu = ["Predict Single Stock", "Compare Stocks", "Predict Gold Prices", "Predict Silver Prices", "Predict Crude Oil Prices"]
 choice = st.sidebar.selectbox("Select page", menu)
 
-def plot_raw_data(daily_data, ticker_name):
+def plot_raw_data(daily_data, ticker_name, y_axis_values, y_axis_range):
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=daily_data.index, y=daily_data['Open'], name=f"{ticker_name} Open"))
     fig.add_trace(go.Scatter(x=daily_data.index, y=daily_data['Close'], name=f"{ticker_name} Close"))
@@ -31,19 +31,19 @@ def plot_raw_data(daily_data, ticker_name):
         height=600,
         width=900,
         yaxis=dict(
-            tickvals=[0, 100, 200, 300, 400],
-            range=[0, 500],  # Adjust this range as needed
+            tickvals=y_axis_values,
+            range=y_axis_range,
         )
     )
     st.plotly_chart(fig)
 
-def predict_prices(data, ticker_name, n_years, smoothing_factor, changepoint_prior_scale):
+def predict_prices(data, ticker_name, n_years, smoothing_factor, changepoint_prior_scale, y_axis_values, y_axis_range):
     data['Date'] = pd.to_datetime(data['Date'])
     data.set_index('Date', inplace=True)
     daily_data = data.resample('D').interpolate()
     daily_data['Close_rolling'] = daily_data['Close'].ewm(alpha=1 - smoothing_factor).mean()
 
-    plot_raw_data(daily_data, ticker_name)
+    plot_raw_data(daily_data, ticker_name, y_axis_values, y_axis_range)
 
     df_train = daily_data[['Close_rolling']].reset_index().rename(columns={"Date": "ds", "Close_rolling": "y"})
 
@@ -79,8 +79,8 @@ def predict_prices(data, ticker_name, n_years, smoothing_factor, changepoint_pri
             height=600,
             width=900,
             yaxis=dict(
-                tickvals=[0, 300, 600, 900, 1200],
-                range=[0, 500],  # Adjust this range as needed
+                tickvals=y_axis_values,
+                range=y_axis_range,
             ),
             legend=dict(
                 orientation="h",
@@ -106,7 +106,8 @@ if choice == "Predict Single Stock":
         data = load_data(selected_stock)
         data_load_state.text('Loading data... done!')
 
-        predict_prices(data, selected_stock, n_years, smoothing_factor, changepoint_prior_scale)
+        predict_prices(data, selected_stock, n_years, smoothing_factor, changepoint_prior_scale,
+                       y_axis_values=[0, 100, 200, 300, 400], y_axis_range=[0, 500])
 
 elif choice == "Compare Stocks":
     selected_stocks = st.multiselect('Select stock tickers for comparison (refer to yfinance for tickers)',
@@ -149,7 +150,8 @@ elif choice == "Predict Gold Prices":
     smoothing_factor = st.slider('Smoothing Factor (increase for smoother graph)', 0.1, 0.95, 0.9, 0.05)
     changepoint_prior_scale = st.slider('Flexibility of Trend', 0.1, 10.0, 0.5, 0.1, format="%.1f")
 
-    predict_prices(gold_data, 'Gold', n_years, smoothing_factor, changepoint_prior_scale)
+    predict_prices(gold_data, 'Gold', n_years, smoothing_factor, changepoint_prior_scale,
+                   y_axis_values=[0, 300, 600, 900, 1200], y_axis_range=[0, 1200])
 
 elif choice == "Predict Silver Prices":
     silver_data = load_data('SI=F')  # Use the correct ticker for Silver Futures
@@ -159,7 +161,8 @@ elif choice == "Predict Silver Prices":
     smoothing_factor = st.slider('Smoothing Factor (increase for smoother graph)', 0.1, 0.95, 0.9, 0.05)
     changepoint_prior_scale = st.slider('Flexibility of Trend', 0.1, 10.0, 0.5, 0.1, format="%.1f")
 
-    predict_prices(silver_data, 'Silver', n_years, smoothing_factor, changepoint_prior_scale)
+    predict_prices(silver_data, 'Silver', n_years, smoothing_factor, changepoint_prior_scale,
+                   y_axis_values=[0, 10, 20, 30, 40, 50], y_axis_range=[0, 50])
 
 elif choice == "Predict Crude Oil Prices":
     crude_data = load_data('CL=F')  # Use the correct ticker for Crude Oil Futures
@@ -169,7 +172,8 @@ elif choice == "Predict Crude Oil Prices":
     smoothing_factor = st.slider('Smoothing Factor (increase for smoother graph)', 0.1, 0.95, 0.9, 0.05)
     changepoint_prior_scale = st.slider('Flexibility of Trend', 0.1, 10.0, 0.5, 0.1, format="%.1f")
 
-    predict_prices(crude_data, 'Crude Oil', n_years, smoothing_factor, changepoint_prior_scale)
+        predict_prices(crude_data, 'Crude Oil', n_years, smoothing_factor, changepoint_prior_scale,
+                   y_axis_values=[0, 20, 40, 60, 80], y_axis_range=[0, 80])
 
 footer = """
 <style>
