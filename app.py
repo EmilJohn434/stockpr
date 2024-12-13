@@ -187,67 +187,6 @@ elif choice == "Predict Crude Oil Prices":
     predict_prices(crude_data, 'Crude Oil', n_years, smoothing_factor, changepoint_prior_scale,
                    y_axis_values=[0, 40, 80, 120, 160], y_axis_range=[0, 160])
 
-def predict_prices(data, ticker_name, n_years, smoothing_factor, changepoint_prior_scale, y_axis_values, y_axis_range):
-    data['Date'] = pd.to_datetime(data['Date'])
-    data.set_index('Date', inplace=True)
-    daily_data = data.resample('D').interpolate()
-    daily_data['Close_rolling'] = daily_data['Close'].ewm(alpha=1 - smoothing_factor).mean()
-    daily_data['Sentiment'] = daily_data['Close'].apply(lambda x: get_sentiment_score("news or social media text for the date"))
-
-    plot_raw_data(daily_data, ticker_name, y_axis_values, y_axis_range)
-
-    df_train = daily_data[['Close_rolling', 'Sentiment']].reset_index().rename(columns={"Date": "ds", "Close_rolling": "y"})
-    
-    if df_train.dropna().shape[0] < 2:
-        st.error("Not enough data to train the model. Please select a different ticker or time period.")
-    else:
-        m = Prophet(
-            growth='linear',
-            changepoint_prior_scale=changepoint_prior_scale,
-            seasonality_mode='multiplicative'
-        )
-        m.add_regressor('Sentiment')
-
-        m.fit(df_train)
-
-        period = n_years * 365
-        future = m.make_future_dataframe(periods=period, freq='D')
-        future['Sentiment'] = future['ds'].apply(lambda x: get_sentiment_score("news or social media text for the future date"))
-
-        forecast = m.predict(future)
-
-        st.subheader(f'Forecast Plot for {ticker_name} ({n_years} Years)')
-
-        fig1 = plot_plotly(m, forecast)
-
-        fig1.update_traces(mode='lines', line=dict(color='blue', width=2), selector=dict(name='yhat'))
-
-        num_data_points = len(forecast)
-        marker_size = max(4, 200 // num_data_points)
-
-        fig1.update_traces(mode='markers+lines', marker=dict(size=marker_size, color='black', opacity=0.7),
-                           selector=dict(name='yhat_lower,yhat_upper'))
-
-        fig1.update_layout(
-            title_text=f'Forecast Plot for {ticker_name} ({n_years} Years)',
-            xaxis_rangeslider_visible=True,
-            height=600,
-            width=900,
-            yaxis=dict(
-                tickvals=y_axis_values,
-                range=y_axis_range,
-            ),
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1
-            )
-        )
-
-        st.plotly_chart(fig1)
-
 
 footer = """
 <style>
