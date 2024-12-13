@@ -173,7 +173,7 @@ elif choice == "Predict Crude Oil Prices":
     changepoint_prior_scale = st.slider('Flexibility of Trend', 0.1, 10.0, 0.5, 0.1, format="%.1f")
 
     predict_prices(crude_data, 'Crude Oil', n_years, smoothing_factor, changepoint_prior_scale,
-                   y_axis_values=[0, 20, 40, 60, 80], y_axis_range=[0, 80])
+                   y_axis_values=[0, 10, 30, 50, 70, 90, 110], y_axis_range=[0, 110])
 
 footer = """
 <style>
