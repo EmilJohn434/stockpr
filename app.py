@@ -62,51 +62,54 @@ if choice == "Predict Single Stock":
 
         df_train = daily_data[['Close_rolling']].reset_index().rename(columns={"Date": "ds", "Close_rolling": "y"})
 
-        m = Prophet(
-            growth='linear',
-            changepoint_prior_scale=changepoint_prior_scale
-        )
-
-        m.fit(df_train)
-
-        future = m.make_future_dataframe(periods=period, freq='D')
-
-        forecast = m.predict(future)
-
-        if n_years == 1:
-            st.subheader(f'Forecast Plot for {n_years} Year')
+        if df_train.dropna().shape[0] < 2:
+            st.error("Not enough data to train the model. Please select a different ticker or time period.")
         else:
-            st.subheader(f'Forecast Plot for {n_years} Years')
-
-        fig1 = plot_plotly(m, forecast)
-
-        fig1.update_traces(mode='lines', line=dict(color='blue', width=2), selector=dict(name='yhat'))
-
-        num_data_points = len(forecast)
-        marker_size = max(4, 200 // num_data_points)
-
-        fig1.update_traces(mode='markers+lines', marker=dict(size=marker_size, color='black', opacity=0.7),
-                           selector=dict(name='yhat_lower,yhat_upper'))
-
-        fig1.update_layout(
-            title_text=f'Forecast Plot for {n_years} Years',
-            xaxis_rangeslider_visible=True,
-            height=600,
-            width=900,
-            yaxis=dict(
-                tickvals=[0, 100, 200, 300, 400],
-                range=[0, 500],  # Adjust this range as needed
-            ),
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1
+            m = Prophet(
+                growth='linear',
+                changepoint_prior_scale=changepoint_prior_scale
             )
-        )
 
-        st.plotly_chart(fig1)
+            m.fit(df_train)
+
+            future = m.make_future_dataframe(periods=period, freq='D')
+
+            forecast = m.predict(future)
+
+            if n_years == 1:
+                st.subheader(f'Forecast Plot for {n_years} Year')
+            else:
+                st.subheader(f'Forecast Plot for {n_years} Years')
+
+            fig1 = plot_plotly(m, forecast)
+
+            fig1.update_traces(mode='lines', line=dict(color='blue', width=2), selector=dict(name='yhat'))
+
+            num_data_points = len(forecast)
+            marker_size = max(4, 200 // num_data_points)
+
+            fig1.update_traces(mode='markers+lines', marker=dict(size=marker_size, color='black', opacity=0.7),
+                               selector=dict(name='yhat_lower,yhat_upper'))
+
+            fig1.update_layout(
+                title_text=f'Forecast Plot for {n_years} Years',
+                xaxis_rangeslider_visible=True,
+                height=600,
+                width=900,
+                yaxis=dict(
+                    tickvals=[0, 100, 200, 300, 400],
+                    range=[0, 500],  # Adjust this range as needed
+                ),
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="right",
+                    x=1
+                )
+            )
+
+            st.plotly_chart(fig1)
 
 elif choice == "Compare Stocks":
     selected_stocks = st.multiselect('Select stock tickers for comparison (refer to yfinance for tickers)',
@@ -142,40 +145,46 @@ elif choice == "Compare Stocks":
         plot_comparison()
 
 elif choice == "Predict Gold Prices":
-    gold_data = load_data('^GOLD')
+    gold_data = load_data('GC=F')  # Use the correct ticker for Gold Futures
     gold_data['Date'] = pd.to_datetime(gold_data['Date'])
     gold_data.set_index('Date', inplace=True)
     gold_data['Close_rolling'] = gold_data['Close'].ewm(alpha=0.9).mean()
 
     df_train = gold_data[['Close_rolling']].reset_index().rename(columns={"Date": "ds", "Close_rolling": "y"})
 
-    m = Prophet(growth='linear')
-    m.fit(df_train)
+    if df_train.dropna().shape[0] < 2:
+        st.error("Not enough data to train the model. Please select a different ticker or time period.")
+    else:
+        m = Prophet(growth='linear')
+        m.fit(df_train)
 
-    future = m.make_future_dataframe(periods=365, freq='D')
-    forecast = m.predict(future)
+        future = m.make_future_dataframe(periods=365, freq='D')
+        forecast = m.predict(future)
 
-    fig1 = plot_plotly(m, forecast)
-    fig1.update_traces(mode='lines', line=dict(color='blue', width=2), selector=dict(name='yhat'))
-    st.plotly_chart(fig1)
+        fig1 = plot_plotly(m, forecast)
+        fig1.update_traces(mode='lines', line=dict(color='blue', width=2), selector=dict(name='yhat'))
+        st.plotly_chart(fig1)
 
 elif choice == "Predict Silver Prices":
-    silver_data = load_data('^SILVER')
+    silver_data = load_data('SI=F')  # Use the correct ticker for Silver Futures
     silver_data['Date'] = pd.to_datetime(silver_data['Date'])
     silver_data.set_index('Date', inplace=True)
     silver_data['Close_rolling'] = silver_data['Close'].ewm(alpha=0.9).mean()
 
     df_train = silver_data[['Close_rolling']].reset_index().rename(columns={"Date": "ds", "Close_rolling": "y"})
 
-    m = Prophet(growth='linear')
-    m.fit(df_train)
+    if df_train.dropna().shape[0] < 2:
+        st.error("Not enough data to train the model. Please select a different ticker or time period.")
+    else:
+        m = Prophet(growth='linear')
+        m.fit(df_train)
 
-    future = m.make_future_dataframe(periods=365, freq='D')
-    forecast = m.predict(future)
+        future = m.make_future_dataframe(periods=365, freq='D')
+        forecast = m.predict(future)
 
-    fig1 = plot_plotly(m, forecast)
-    fig1.update_traces(mode='lines', line=dict(color='blue', width=2), selector=dict(name='yhat'))
-    st.plotly_chart(fig1)
+        fig1 = plot_plotly(m, forecast)
+        fig1.update_traces(mode='lines', line=dict(color='blue', width=2), selector=dict(name='yhat'))
+        st.plotly_chart(fig1)
 
 elif choice == "Predict Crude Oil Prices":
     crude_data = load_data('CL=F')
@@ -185,15 +194,18 @@ elif choice == "Predict Crude Oil Prices":
 
     df_train = crude_data[['Close_rolling']].reset_index().rename(columns={"Date": "ds", "Close_rolling": "y"})
 
-    m = Prophet(growth='linear')
-    m.fit(df_train)
+    if df_train.dropna().shape[0] < 2:
+        st.error("Not enough data to train the model. Please select a different ticker or time period.")
+    else:
+        m = Prophet(growth='linear')
+        m.fit(df_train)
 
-    future = m.make_future_dataframe(periods=365, freq='D')
-    forecast = m.predict(future)
+        future = m.make_future_dataframe(periods=365, freq='D')
+        forecast = m.predict(future)
 
-    fig1 = plot_plotly(m, forecast)
-    fig1.update_traces(mode='lines', line=dict(color='blue', width=2), selector=dict(name='yhat'))
-    st.plotly_chart(fig1)
+        fig1 = plot_plotly(m, forecast)
+        fig1.update_traces(mode='lines', line=dict(color='blue', width=2), selector=dict(name='yhat'))
+        st.plotly_chart(fig1)
 
 footer = """
 <style>
@@ -210,6 +222,6 @@ footer = """
     <p>Made by Emil, Adhip and Naren</p>
     <p>This app is made for educational purposes only. Data it provides is not 100% accurate.</p>
     <p>Analyze stocks before investing.</p>
-</div>
+</footer>
 """
 st.markdown(footer, unsafe_allow_html=True)
