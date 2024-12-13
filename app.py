@@ -173,7 +173,7 @@ elif choice == "Predict Silver Prices":
     smoothing_factor = st.slider('Smoothing Factor (increase for smoother graph)', 0.1, 0.95, 0.9, 0.05)
     changepoint_prior_scale = st.slider('Flexibility of Trend', 0.1, 10.0, 0.5, 0.1, format="%.1f")
 
-        predict_prices(silver_data, 'Silver', n_years, smoothing_factor, changepoint_prior_scale,
+    predict_prices(silver_data, 'Silver', n_years, smoothing_factor, changepoint_prior_scale,
                    y_axis_values=[0, 10, 20, 30, 40, 50], y_axis_range=[0, 50])
 
 elif choice == "Predict Crude Oil Prices":
