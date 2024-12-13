@@ -5,9 +5,11 @@ import plotly.graph_objs as go
 import pandas as pd
 from datetime import date
 import streamlit as st
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 TODAY = date.today().strftime("%Y-%m-%d")
 start_date = None
+analyzer = SentimentIntensityAnalyzer()
 
 def load_data(ticker):
     if ticker:
@@ -15,10 +17,9 @@ def load_data(ticker):
         data.reset_index(inplace=True)
         return data
 
-st.title('Market Predictor')
-
-menu = ["Predict Single Stock", "Compare Stocks", "Predict Gold Prices", "Predict Silver Prices", "Predict Crude Oil Prices"]
-choice = st.sidebar.selectbox("Select page", menu)
+def get_sentiment_score(text):
+    sentiment = analyzer.polarity_scores(text)
+    return sentiment['compound']
 
 def plot_raw_data(daily_data, ticker_name, y_axis_values, y_axis_range):
     fig = go.Figure()
@@ -43,9 +44,12 @@ def predict_prices(data, ticker_name, n_years, smoothing_factor, changepoint_pri
     daily_data = data.resample('D').interpolate()
     daily_data['Close_rolling'] = daily_data['Close'].ewm(alpha=1 - smoothing_factor).mean()
 
+    # Add sentiment analysis score to the data (assuming you have sentiment data for each date)
+    daily_data['Sentiment'] = daily_data['Close'].apply(lambda x: get_sentiment_score("news or social media text for the date"))
+
     plot_raw_data(daily_data, ticker_name, y_axis_values, y_axis_range)
 
-    df_train = daily_data[['Close_rolling']].reset_index().rename(columns={"Date": "ds", "Close_rolling": "y"})
+    df_train = daily_data[['Close_rolling', 'Sentiment']].reset_index().rename(columns={"Date": "ds", "Close_rolling": "y"})
 
     if df_train.dropna().shape[0] < 2:
         st.error("Not enough data to train the model. Please select a different ticker or time period.")
@@ -54,11 +58,14 @@ def predict_prices(data, ticker_name, n_years, smoothing_factor, changepoint_pri
             growth='linear',
             changepoint_prior_scale=changepoint_prior_scale
         )
+        m.add_regressor('Sentiment')
 
         m.fit(df_train)
 
         period = n_years * 365
         future = m.make_future_dataframe(periods=period, freq='D')
+        future['Sentiment'] = future['ds'].apply(lambda x: get_sentiment_score("news or social media text for the future date"))
+
         forecast = m.predict(future)
 
         st.subheader(f'Forecast Plot for {ticker_name} ({n_years} Years)')
@@ -92,6 +99,11 @@ def predict_prices(data, ticker_name, n_years, smoothing_factor, changepoint_pri
         )
 
         st.plotly_chart(fig1)
+
+st.title('Market Predictor')
+
+menu = ["Predict Single Stock", "Compare Stocks", "Predict Gold Prices", "Predict Silver Prices", "Predict Crude Oil Prices"]
+choice = st.sidebar.selectbox("Select page", menu)
 
 if choice == "Predict Single Stock":
     selected_stock = st.text_input('Select a stock ticker for prediction (refer to yfinance for ticker)')
@@ -161,7 +173,7 @@ elif choice == "Predict Silver Prices":
     smoothing_factor = st.slider('Smoothing Factor (increase for smoother graph)', 0.1, 0.95, 0.9, 0.05)
     changepoint_prior_scale = st.slider('Flexibility of Trend', 0.1, 10.0, 0.5, 0.1, format="%.1f")
 
-    predict_prices(silver_data, 'Silver', n_years, smoothing_factor, changepoint_prior_scale,
+        predict_prices(silver_data, 'Silver', n_years, smoothing_factor, changepoint_prior_scale,
                    y_axis_values=[0, 10, 20, 30, 40, 50], y_axis_range=[0, 50])
 
 elif choice == "Predict Crude Oil Prices":
