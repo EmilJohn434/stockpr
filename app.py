@@ -172,7 +172,7 @@ elif choice == "Predict Crude Oil Prices":
     smoothing_factor = st.slider('Smoothing Factor (increase for smoother graph)', 0.1, 0.95, 0.9, 0.05)
     changepoint_prior_scale = st.slider('Flexibility of Trend', 0.1, 10.0, 0.5, 0.1, format="%.1f")
 
-        predict_prices(crude_data, 'Crude Oil', n_years, smoothing_factor, changepoint_prior_scale,
+    predict_prices(crude_data, 'Crude Oil', n_years, smoothing_factor, changepoint_prior_scale,
                    y_axis_values=[0, 20, 40, 60, 80], y_axis_range=[0, 80])
 
 footer = """
@@ -190,6 +190,6 @@ footer = """
     <p>Made by Emil, Adhip and Naren</p>
     <p>This app is made for educational purposes only. Data it provides is not 100% accurate.</p>
     <p>Analyze stocks before investing.</p>
-</footer>
+</div>
 """
 st.markdown(footer, unsafe_allow_html=True)
