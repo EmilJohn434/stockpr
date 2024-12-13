@@ -79,7 +79,7 @@ def predict_prices(data, ticker_name, n_years, smoothing_factor, changepoint_pri
             height=600,
             width=900,
             yaxis=dict(
-                tickvals=[0, 100, 200, 300, 400],
+                tickvals=[0, 300, 600, 900, 1200],
                 range=[0, 500],  # Adjust this range as needed
             ),
             legend=dict(
@@ -133,7 +133,7 @@ elif choice == "Compare Stocks":
                 height=600,
                 width=900,
                 yaxis=dict(
-                    tickvals=[0, 300, 600, 900, 1200],
+                    tickvals=[0, 100, 200, 300, 400],
                     range=[0, 500],  # Adjust this range as needed
                 )
             )
