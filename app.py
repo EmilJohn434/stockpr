@@ -151,7 +151,7 @@ elif choice == "Predict Gold Prices":
     changepoint_prior_scale = st.slider('Flexibility of Trend', 0.1, 10.0, 0.5, 0.1, format="%.1f")
 
     predict_prices(gold_data, 'Gold', n_years, smoothing_factor, changepoint_prior_scale,
-                   y_axis_values=[0, 400, 800, 1200, 1600, 2000], y_axis_range=[0, 2000])
+                   y_axis_values=[0, 600, 1200, 1800, 2400, 3000], y_axis_range=[0, 3000])
 
 elif choice == "Predict Silver Prices":
     silver_data = load_data('SI=F')  # Use the correct ticker for Silver Futures
