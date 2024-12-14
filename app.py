@@ -80,6 +80,15 @@ def predict_prices(data, ticker_name, n_years, smoothing_factor, changepoint_pri
 
         fig1 = plot_plotly(m, forecast)
 
+        # Ensure predicted line touches the actual line at the endpoint
+        fig1.add_trace(go.Scatter(
+            x=[daily_data.index[-1], future['ds'].iloc[daily_data.shape[0]]],
+            y=[last_actual_value, last_actual_value],
+            mode='lines',
+            line=dict(color='red', dash='dash'),
+            name='Touch Point'
+        ))
+
         fig1.update_traces(mode='lines', line=dict(color='blue', width=2), selector=dict(name='yhat'))
 
         num_data_points = len(forecast)
