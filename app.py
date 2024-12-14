@@ -68,14 +68,6 @@ def predict_prices(data, ticker_name, n_years, smoothing_factor, changepoint_pri
 
         forecast = m.predict(future)
 
-        # Adjust forecast values to ensure continuity
-        last_actual_value = daily_data['Close'].iloc[-1]
-        first_forecast_value = forecast['yhat'].iloc[daily_data.shape[0]]
-        adjustment = last_actual_value - first_forecast_value
-        forecast['yhat'] += adjustment
-        forecast['yhat_lower'] += adjustment
-        forecast['yhat_upper'] += adjustment
-
         st.subheader(f'Forecast Plot for {ticker_name} ({n_years} Years)')
 
         fig1 = plot_plotly(m, forecast)
