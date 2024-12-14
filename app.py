@@ -68,6 +68,14 @@ def predict_prices(data, ticker_name, n_years, smoothing_factor, changepoint_pri
 
         forecast = m.predict(future)
 
+        # Adjust forecast values to ensure continuity
+        last_actual_value = daily_data['Close'].iloc[-1]
+        first_forecast_value = forecast['yhat'].iloc[daily_data.shape[0]]
+        adjustment = last_actual_value - first_forecast_value
+        forecast['yhat'] += adjustment
+        forecast['yhat_lower'] += adjustment
+        forecast['yhat_upper'] += adjustment
+
         st.subheader(f'Forecast Plot for {ticker_name} ({n_years} Years)')
 
         fig1 = plot_plotly(m, forecast)
@@ -174,7 +182,8 @@ elif choice == "Predict Silver Prices":
     changepoint_prior_scale = st.slider('Flexibility of Trend', 0.1, 10.0, 0.5, 0.1, format="%.1f")
 
     predict_prices(silver_data, 'Silver', n_years, smoothing_factor, changepoint_prior_scale,
-                   y_axis_values=[0, 10, 20, 30, 40, 50], y_axis_range=[0, 50])
+                   y_axis_values=[0, 10, 20, 30, 40, 50], y_axis
+                       y_axis_range=[0, 50])
 
 elif choice == "Predict Crude Oil Prices":
     crude_data = load_data('CL=F')  # Use the correct ticker for Crude Oil Futures
@@ -186,7 +195,6 @@ elif choice == "Predict Crude Oil Prices":
 
     predict_prices(crude_data, 'Crude Oil', n_years, smoothing_factor, changepoint_prior_scale,
                    y_axis_values=[0, 40, 80, 120, 160], y_axis_range=[0, 160])
-
 
 footer = """
 <style>
